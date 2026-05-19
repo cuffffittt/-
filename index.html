@@ -1,555 +1,617 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>抽籤系統</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>畢業典禮班級座位抽籤系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-      min-height: 100vh;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 36px 16px 60px;
-    }
+        body {
+            font-family: "Arial", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    h1 {
-      font-size: 2.2rem;
-      letter-spacing: 6px;
-      color: #ffd700;
-      text-shadow: 0 0 24px rgba(255,215,0,0.5);
-      margin-bottom: 6px;
-    }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+        }
 
-    .subtitle { color: #718096; font-size: 0.9rem; margin-bottom: 48px; letter-spacing: 1px; }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-    /* ---- Two-column layout ---- */
-    .columns {
-      display: flex;
-      gap: 28px;
-      width: 100%;
-      max-width: 860px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+        .header h1 {
+            font-size: 3em;
+            color: #333;
+            margin-bottom: 10px;
+        }
 
-    .col {
-      flex: 1;
-      min-width: 280px;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-    }
+        .header p {
+            font-size: 1.3em;
+            color: #666;
+        }
 
-    /* ---- Panel ---- */
-    .panel {
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 18px;
-      padding: 24px 20px;
-      backdrop-filter: blur(12px);
-    }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
 
-    .panel-title {
-      font-size: 0.78rem;
-      letter-spacing: 2px;
-      color: #90cdf4;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+        .section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
 
-    .step-badge {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
+        .section h2 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
 
-    /* ---- Drum ---- */
-    .drum-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      width: 100%;
-    }
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-    .drum {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      border: 3px solid #ffd700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 16px;
-      position: relative;
-      box-shadow: 0 0 24px rgba(255,215,0,0.15);
-      transition: box-shadow 0.3s;
-    }
+        .class-btn {
+            padding: 15px 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-    .drum.spinning {
-      animation: glow-pulse 0.35s ease-in-out infinite alternate;
-    }
+        .class-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
 
-    @keyframes glow-pulse {
-      from { box-shadow: 0 0 20px rgba(255,215,0,0.2); }
-      to   { box-shadow: 0 0 60px rgba(255,215,0,0.8); }
-    }
+        .class-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
 
-    .drum.locked {
-      border-color: #68d391;
-      box-shadow: 0 0 28px rgba(104,211,145,0.35);
-    }
+        .class-btn.used {
+            background: #d4d4d4;
+            color: #999;
+            cursor: not-allowed;
+            border-color: #999;
+        }
 
-    .drum-text {
-      font-size: 0.95rem;
-      color: #a0aec0;
-      line-height: 1.5;
-      transition: opacity 0.1s;
-    }
+        .draw-section {
+            text-align: center;
+        }
 
-    .drum.spinning .drum-text { animation: flicker 0.12s steps(1) infinite; }
+        .selected-class {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 30px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    @keyframes flicker { 50% { opacity: 0.2; } }
+        .draw-btn {
+            padding: 20px 40px;
+            font-size: 1.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            width: 100%;
+        }
 
-    /* ---- Result tag ---- */
-    .result-tag {
-      font-size: 1.05rem;
-      font-weight: 700;
-      padding: 10px 22px;
-      border-radius: 28px;
-      text-align: center;
-      animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+        .draw-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
 
-    .result-tag.mode-tag {
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      color: #1a1a2e;
-    }
+        .draw-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
 
-    .result-tag.map-tag {
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      color: #1a1a2e;
-    }
+        .result-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ff6b6b;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            border: 3px solid #ff6b6b;
+            margin-bottom: 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    @keyframes pop-in {
-      from { transform: scale(0.3); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
-    }
+        .seat-visualization {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
 
-    /* ---- Mode list ---- */
-    .mode-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 100%;
-    }
+        .seat {
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
 
-    .mode-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
-      font-size: 0.88rem;
-      color: #a0aec0;
-      transition: all 0.25s;
-      cursor: default;
-    }
+        .seat.occupied {
+            background: #95e1d3;
+            border-color: #38ada9;
+            color: #0c5c52;
+        }
 
-    .mode-item.active {
-      background: rgba(246,211,101,0.12);
-      border-color: rgba(246,211,101,0.4);
-      color: #fbd38d;
-    }
+        .seat.available {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
 
-    .mode-item .mode-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4a5568;
-      flex-shrink: 0;
-      transition: background 0.25s;
-    }
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
-    .mode-item.active .mode-dot { background: #fbd38d; }
+        .btn-secondary {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-    /* ---- Map chips ---- */
-    .map-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-    }
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
 
-    .map-chip {
-      font-size: 0.82rem;
-      padding: 5px 12px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #a0aec0;
-      transition: all 0.25s;
-    }
+        .btn-auto-draw {
+            background: #ffc107;
+            border-color: #ffc107;
+            color: #333;
+            font-weight: bold;
+            grid-column: 1 / -1;
+        }
 
-    .map-chip.winner {
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      color: #1a1a2e;
-      font-weight: 700;
-      border-color: transparent;
-      transform: scale(1.08);
-    }
+        .btn-auto-draw:hover {
+            background: #e0a800;
+            border-color: #e0a800;
+        }
 
-    /* ---- Buttons ---- */
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 2px;
-      transition: all 0.2s;
-    }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
 
-    .btn-mode {
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      color: #1a1a2e;
-    }
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1.1em;
+        }
 
-    .btn-mode:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(253,160,133,0.4); }
+        .results-table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
 
-    .btn-map {
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      color: #1a1a2e;
-    }
+        .results-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
 
-    .btn-map:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(168,237,234,0.4); }
+        .results-table tr:hover {
+            background: #e9ecef;
+        }
 
-    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .results-table .class-num {
+            font-weight: bold;
+            color: #667eea;
+        }
 
-    .btn-reset {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #718096;
-      font-size: 0.82rem;
-      letter-spacing: 1px;
-      margin-top: -8px;
-    }
+        .results-table .seat-num {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
 
-    .btn-reset:hover { background: rgba(255,255,255,0.11); }
+        .results-table .pending {
+            background: #ffe5e5;
+            color: #666;
+        }
 
-    /* ---- Arrow connector ---- */
-    .arrow {
-      font-size: 1.6rem;
-      color: #4a5568;
-      align-self: center;
-      margin-top: 80px;
-    }
+        .status-info {
+            background: #d4edff;
+            border: 2px solid #0c63e4;
+            color: #0c63e4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
 
-    /* ---- History ---- */
-    .history-wrap {
-      width: 100%;
-      max-width: 860px;
-      margin-top: 32px;
-    }
+        .status-info.complete {
+            background: #d1e7dd;
+            border-color: #198754;
+            color: #198754;
+        }
 
-    .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
 
-    .history-item {
-      background: rgba(255,255,255,0.04);
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #a0aec0;
-    }
+            .container {
+                padding: 20px;
+            }
 
-    .history-item .hr-round { color: #ffd700; font-weight: 700; min-width: 36px; }
-    .history-item .hr-mode  { color: #fbd38d; }
-    .history-item .hr-sep   { color: #4a5568; }
-    .history-item .hr-map   { color: #b2f5ea; }
+            .header h1 {
+                font-size: 2em;
+            }
 
-    .empty-hint { color: #4a5568; font-size: 0.85rem; text-align: center; padding: 10px; }
-
-    /* ---- Waiting hint ---- */
-    .waiting-hint {
-      color: #4a5568;
-      font-size: 0.85rem;
-      text-align: center;
-      padding: 16px 0 4px;
-    }
-  </style>
+            .class-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <h1>抽 籤</h1>
-  <p class="subtitle">先抽模式，再抽地圖</p>
-
-  <div class="columns">
-
-    <!-- Col 1: Mode draw -->
-    <div class="col">
-      <div class="panel">
-        <div class="panel-title"><span class="step-badge">1</span>抽模式</div>
-        <div class="drum-wrap">
-          <div class="drum" id="modeDrum">
-            <div class="drum-text" id="modeDrumText">按下抽籤<br>決定模式</div>
-          </div>
-          <div id="modeResultWrap" style="display:none">
-            <div class="result-tag mode-tag" id="modeResultTag"></div>
-          </div>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 畢業典禮座位抽籤</h1>
+            <p>班級代表請依次上台選擇班級並進行抽籤</p>
         </div>
-      </div>
 
-      <div class="panel">
-        <div class="panel-title">模式清單</div>
-        <div class="mode-list" id="modeList"></div>
-      </div>
+        <div class="main-content">
+            <!-- 左側：班級選擇和抽籤 -->
+            <div class="section">
+                <h2>選擇班級</h2>
+                <div class="class-grid" id="classGrid"></div>
 
-      <button class="btn btn-mode" id="btnMode" onclick="drawMode()">抽模式</button>
-      <button class="btn btn-reset" onclick="resetAll()">重置全部</button>
-    </div>
+                <div class="draw-section">
+                    <div class="selected-class" id="selectedClass">請選擇班級</div>
+                    <button class="draw-btn" id="drawBtn" disabled>🎰 抽籤</button>
+                    <div class="result-display" id="resultDisplay">-</div>
 
-    <!-- Arrow -->
-    <div class="arrow">&#8594;</div>
+                    <div class="control-buttons">
+                        <button class="btn-secondary" id="prevBtn">⬅️ 上一步</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 重新開始</button>
+                    </div>
 
-    <!-- Col 2: Map draw -->
-    <div class="col">
-      <div class="panel">
-        <div class="panel-title"><span class="step-badge">2</span>抽地圖</div>
-        <div class="drum-wrap">
-          <div class="drum" id="mapDrum">
-            <div class="drum-text" id="mapDrumText">請先<br>完成模式抽籤</div>
-          </div>
-          <div id="mapResultWrap" style="display:none">
-            <div class="result-tag map-tag" id="mapResultTag"></div>
-          </div>
+                    <button class="btn-secondary btn-auto-draw" id="autoDrawBtn">🤖 缺席班級代抽</button>
+                </div>
+
+                <div class="status-info" id="statusInfo">
+                    已分配: <span id="allocatedCount">0</span>/19 班級
+                </div>
+            </div>
+
+            <!-- 右側：座位可視化 -->
+            <div class="section">
+                <h2>座位分配情況</h2>
+                <div class="seat-visualization" id="seatVisualization"></div>
+                <div id="seatLegend" style="margin-top: 20px; font-size: 1.1em;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div style="width: 20px; height: 20px; background: #fff3cd; border: 2px solid #ffc107; margin-right: 10px; border-radius: 4px;"></div>
+                        <span>可用座位</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 20px; height: 20px; background: #95e1d3; border: 2px solid #38ada9; margin-right: 10px; border-radius: 4px;"></div>
+                        <span>已分配座位</span>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div class="panel" id="mapPanel">
-        <div class="panel-title">可選地圖</div>
-        <div class="waiting-hint" id="mapWaitHint">等待模式抽籤完成…</div>
-        <div class="map-chips" id="mapChips"></div>
-      </div>
-
-      <button class="btn btn-map" id="btnMap" onclick="drawMap()" disabled>抽地圖</button>
+        <!-- 結果表格 -->
+        <div class="section">
+            <h2>座位分配結果</h2>
+            <table class="results-table" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>班級</th>
+                        <th>座位號</th>
+                        <th>狀態</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+        </div>
     </div>
 
-  </div>
+    <script>
+        class LotterySystem {
+            constructor() {
+                this.classes = Array.from({length: 19}, (_, i) => 301 + i);
+                this.totalSeats = 19;
+                this.allocations = {}; // {班級號: 座位號}
+                this.history = []; // 用於上一步功能
+                this.selectedClass = null;
 
-  <!-- History -->
-  <div class="history-wrap">
-    <div class="panel">
-      <div class="panel-title">抽籤紀錄</div>
-      <div class="history-list" id="historyList">
-        <div class="empty-hint">尚無紀錄</div>
-      </div>
-    </div>
-  </div>
+                this.init();
+            }
 
-<script>
-  const DATA = [
-    { mode: '寶石爭奪賽', maps: ['寶石要塞', '地下礦坑', '水晶遊戲場'] },
-    { mode: '亂鬥足球',   maps: ['三重威脅', '中心舞台', '夢幻彈珠'] },
-    { mode: '據點搶奪賽', maps: ['避稅區',   '平行遊戲', '金色海灣'] },
-    { mode: '積分爭奪賽', maps: ['1點35',    '步行熱沙', '時光飛逝'] },
-    { mode: '極限淘汰賽', maps: ['空曠荒野', '搖滾蓓爾', '新地平線'] },
-  ];
+            init() {
+                this.renderClassGrid();
+                this.renderSeats();
+                this.updateResults();
+                this.updateStatus();
+            }
 
-  let modePool = DATA.map(d => d.mode);   // remaining modes
-  let currentMode = null;
-  let currentMaps = [];
-  let round = 0;
-  let spinning = false;
+            renderClassGrid() {
+                const grid = document.getElementById('classGrid');
+                grid.innerHTML = '';
 
-  /* ---- Init ---- */
-  function init() {
-    const list = document.getElementById('modeList');
-    list.innerHTML = '';
-    DATA.forEach(d => {
-      const el = document.createElement('div');
-      el.className = 'mode-item';
-      el.id = 'mode-' + d.mode;
-      el.innerHTML = `<div class="mode-dot"></div><span>${d.mode}</span>`;
-      list.appendChild(el);
-    });
-  }
+                this.classes.forEach(classNum => {
+                    const btn = document.createElement('button');
+                    btn.className = 'class-btn';
+                    btn.textContent = classNum + '班';
 
-  /* ---- Draw Mode ---- */
-  function drawMode() {
-    if (spinning) return;
-    if (modePool.length === 0) { alert('所有模式都已抽過，請重置！'); return; }
+                    if (this.allocations[classNum]) {
+                        btn.classList.add('used');
+                        btn.disabled = true;
+                    } else {
+                        btn.addEventListener('click', () => this.selectClass(classNum, btn));
+                    }
 
-    spinning = true;
-    currentMode = null;
-    document.getElementById('btnMode').disabled = true;
-    document.getElementById('btnMap').disabled = true;
-    document.getElementById('modeResultWrap').style.display = 'none';
-    document.getElementById('mapResultWrap').style.display = 'none';
-    document.getElementById('mapChips').innerHTML = '';
-    document.getElementById('mapWaitHint').style.display = 'block';
+                    grid.appendChild(btn);
+                });
+            }
 
-    const drum = document.getElementById('modeDrum');
-    drum.classList.remove('locked');
-    drum.classList.add('spinning');
+            selectClass(classNum, btn) {
+                this.selectedClass = classNum;
+                document.getElementById('selectedClass').textContent = classNum + '班';
+                document.getElementById('drawBtn').disabled = false;
+                document.getElementById('resultDisplay').textContent = '-';
 
-    const interval = setInterval(() => {
-      const rand = modePool[Math.floor(Math.random() * modePool.length)];
-      document.getElementById('modeDrumText').textContent = rand;
-    }, 90);
+                // 更新按鈕狀態
+                document.querySelectorAll('.class-btn').forEach(b => {
+                    b.classList.remove('selected');
+                });
+                btn.classList.add('selected');
+            }
 
-    setTimeout(() => {
-      clearInterval(interval);
-      drum.classList.remove('spinning');
+            draw() {
+                if (!this.selectedClass) return;
 
-      const idx = Math.floor(Math.random() * modePool.length);
-      currentMode = modePool[idx];
-      modePool.splice(idx, 1);
+                // 保存當前狀態到歷史
+                this.history.push({...this.allocations});
 
-      document.getElementById('modeDrumText').textContent = currentMode;
-      document.getElementById('modeResultTag').textContent = currentMode;
-      document.getElementById('modeResultWrap').style.display = 'block';
+                // 獲取可用座位
+                const usedSeats = new Set(Object.values(this.allocations));
+                const availableSeats = Array.from({length: this.totalSeats}, (_, i) => i + 1)
+                    .filter(seat => !usedSeats.has(seat));
 
-      // highlight active mode
-      document.querySelectorAll('.mode-item').forEach(el => el.classList.remove('active'));
-      document.getElementById('mode-' + currentMode).classList.add('active');
+                if (availableSeats.length === 0) {
+                    alert('沒有可用座位了！');
+                    return;
+                }
 
-      // populate maps
-      currentMaps = DATA.find(d => d.mode === currentMode).maps;
-      showMapChips(currentMaps, null);
-      document.getElementById('mapWaitHint').style.display = 'none';
-      document.getElementById('mapDrumText').textContent = '按下抽籤\n決定地圖';
-      document.getElementById('mapDrum').classList.remove('locked');
+                // 隨機選擇座位
+                const randomSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
+                this.allocations[this.selectedClass] = randomSeat;
 
-      document.getElementById('btnMap').disabled = false;
-      document.getElementById('btnMode').disabled = false;
-      spinning = false;
-    }, 1600);
-  }
+                // 顯示結果
+                document.getElementById('resultDisplay').textContent = randomSeat + '號座位';
+                document.getElementById('drawBtn').textContent = '✅ 已分配！';
+                document.getElementById('drawBtn').disabled = true;
 
-  /* ---- Draw Map ---- */
-  function drawMap() {
-    if (spinning || !currentMode) return;
+                // 更新UI
+                this.renderClassGrid();
+                this.renderSeats();
+                this.updateResults();
+                this.updateStatus();
 
-    spinning = true;
-    document.getElementById('btnMode').disabled = true;
-    document.getElementById('btnMap').disabled = true;
-    document.getElementById('mapResultWrap').style.display = 'none';
+                // 提示下一班級
+                setTimeout(() => {
+                    this.selectedClass = null;
+                    document.getElementById('selectedClass').textContent = '請選擇班級';
+                    document.getElementById('resultDisplay').textContent = '-';
+                    document.getElementById('drawBtn').textContent = '🎰 抽籤';
+                    document.getElementById('drawBtn').disabled = true;
+                }, 2000);
+            }
 
-    const drum = document.getElementById('mapDrum');
-    drum.classList.remove('locked');
-    drum.classList.add('spinning');
+            renderSeats() {
+                const container = document.getElementById('seatVisualization');
+                container.innerHTML = '';
 
-    const interval = setInterval(() => {
-      const rand = currentMaps[Math.floor(Math.random() * currentMaps.length)];
-      document.getElementById('mapDrumText').textContent = rand;
-    }, 90);
+                for (let i = 1; i <= this.totalSeats; i++) {
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.textContent = i;
 
-    setTimeout(() => {
-      clearInterval(interval);
-      drum.classList.remove('spinning');
-      drum.classList.add('locked');
+                    const isOccupied = Object.values(this.allocations).includes(i);
+                    if (isOccupied) {
+                        seat.classList.add('occupied');
+                    } else {
+                        seat.classList.add('available');
+                    }
 
-      const map = currentMaps[Math.floor(Math.random() * currentMaps.length)];
-      document.getElementById('mapDrumText').textContent = map;
-      document.getElementById('mapResultTag').textContent = map;
-      document.getElementById('mapResultWrap').style.display = 'block';
+                    container.appendChild(seat);
+                }
+            }
 
-      showMapChips(currentMaps, map);
+            updateResults() {
+                const tbody = document.getElementById('resultsBody');
+                tbody.innerHTML = '';
 
-      round++;
-      addHistory(round, currentMode, map);
+                this.classes.forEach(classNum => {
+                    const row = tbody.insertRow();
+                    const seatNum = this.allocations[classNum];
 
-      document.getElementById('btnMode').disabled = false;
-      spinning = false;
-    }, 1600);
-  }
+                    const cellClass = row.insertCell(0);
+                    cellClass.textContent = classNum + '班';
+                    cellClass.className = 'class-num';
 
-  /* ---- Helpers ---- */
-  function showMapChips(maps, winner) {
-    const wrap = document.getElementById('mapChips');
-    wrap.innerHTML = '';
-    maps.forEach(m => {
-      const chip = document.createElement('div');
-      chip.className = 'map-chip' + (m === winner ? ' winner' : '');
-      chip.textContent = m;
-      wrap.appendChild(chip);
-    });
-  }
+                    const cellSeat = row.insertCell(1);
+                    if (seatNum) {
+                        cellSeat.textContent = seatNum + '號';
+                        cellSeat.className = 'seat-num';
+                    } else {
+                        cellSeat.textContent = '-';
+                        cellSeat.className = 'seat-num pending';
+                    }
 
-  function addHistory(round, mode, map) {
-    const list = document.getElementById('historyList');
-    if (round === 1) list.innerHTML = '';
-    const item = document.createElement('div');
-    item.className = 'history-item';
-    item.innerHTML = `
-      <span class="hr-round">#${round}</span>
-      <span class="hr-mode">${mode}</span>
-      <span class="hr-sep">&#8594;</span>
-      <span class="hr-map">${map}</span>
-    `;
-    list.insertBefore(item, list.firstChild);
-  }
+                    const cellStatus = row.insertCell(2);
+                    cellStatus.textContent = seatNum ? '✅ 已分配' : '⏳ 待分配';
+                    if (!seatNum) {
+                        cellStatus.className = 'pending';
+                    }
 
-  function resetAll() {
-    modePool = DATA.map(d => d.mode);
-    currentMode = null;
-    currentMaps = [];
-    round = 0;
-    spinning = false;
+                    if (!seatNum) {
+                        row.style.background = '#ffe5e5';
+                    }
+                });
+            }
 
-    document.querySelectorAll('.mode-item').forEach(el => el.classList.remove('active'));
-    document.getElementById('modeDrumText').textContent = '按下抽籤\n決定模式';
-    document.getElementById('modeDrum').classList.remove('spinning', 'locked');
-    document.getElementById('modeResultWrap').style.display = 'none';
+            updateStatus() {
+                const allocated = Object.keys(this.allocations).length;
+                document.getElementById('allocatedCount').textContent = allocated;
 
-    document.getElementById('mapDrumText').textContent = '請先\n完成模式抽籤';
-    document.getElementById('mapDrum').classList.remove('spinning', 'locked');
-    document.getElementById('mapResultWrap').style.display = 'none';
-    document.getElementById('mapChips').innerHTML = '';
-    document.getElementById('mapWaitHint').style.display = 'block';
+                const statusInfo = document.getElementById('statusInfo');
+                if (allocated === 19) {
+                    statusInfo.textContent = '✅ 全部班級已分配完畢！';
+                    statusInfo.className = 'status-info complete';
+                    document.getElementById('autoDrawBtn').disabled = true;
+                } else {
+                    statusInfo.innerHTML = `已分配: <span id="allocatedCount">${allocated}</span>/19 班級`;
+                    statusInfo.className = 'status-info';
+                    document.getElementById('autoDrawBtn').disabled = false;
+                }
+            }
 
-    document.getElementById('btnMode').disabled = false;
-    document.getElementById('btnMap').disabled = true;
+            undo() {
+                if (this.history.length === 0) {
+                    alert('沒有可撤銷的操作');
+                    return;
+                }
 
-    document.getElementById('historyList').innerHTML = '<div class="empty-hint">尚無紀錄</div>';
-  }
+                this.allocations = this.history.pop();
+                this.selectedClass = null;
+                document.getElementById('selectedClass').textContent = '請選擇班級';
+                document.getElementById('resultDisplay').textContent = '-';
+                document.getElementById('drawBtn').disabled = true;
+                document.getElementById('drawBtn').textContent = '🎰 抽籤';
 
-  init();
-</script>
+                this.renderClassGrid();
+                this.renderSeats();
+                this.updateResults();
+                this.updateStatus();
+            }
 
+            reset() {
+                if (confirm('確定要重新開始嗎？所有數據將被清除。')) {
+                    this.allocations = {};
+                    this.history = [];
+                    this.selectedClass = null;
+                    this.init();
+                }
+            }
+
+            autoDraw() {
+                // 獲取還沒分配的班級
+                const unallocated = this.classes.filter(classNum => !this.allocations[classNum]);
+
+                if (unallocated.length === 0) {
+                    alert('所有班級都已分配！');
+                    return;
+                }
+
+                if (!confirm(`將為 ${unallocated.length} 個缺席班級代抽座位，繼續嗎？`)) {
+                    return;
+                }
+
+                // 保存當前狀態
+                this.history.push({...this.allocations});
+
+                // 獲取可用座位
+                const usedSeats = new Set(Object.values(this.allocations));
+                let availableSeats = Array.from({length: this.totalSeats}, (_, i) => i + 1)
+                    .filter(seat => !usedSeats.has(seat));
+
+                // 為每個缺席班級分配座位
+                unallocated.forEach(classNum => {
+                    if (availableSeats.length === 0) return;
+
+                    const randomIndex = Math.floor(Math.random() * availableSeats.length);
+                    const seat = availableSeats[randomIndex];
+                    this.allocations[classNum] = seat;
+                    availableSeats.splice(randomIndex, 1);
+                });
+
+                this.selectedClass = null;
+                document.getElementById('selectedClass').textContent = '請選擇班級';
+                document.getElementById('resultDisplay').textContent = '-';
+                document.getElementById('drawBtn').disabled = true;
+
+                this.renderClassGrid();
+                this.renderSeats();
+                this.updateResults();
+                this.updateStatus();
+
+                alert(`✅ 已為 ${unallocated.length} 個班級完成代抽！`);
+            }
+        }
+
+        // 初始化系統
+        const lottery = new LotterySystem();
+
+        // 綁定按鈕事件
+        document.getElementById('drawBtn').addEventListener('click', () => lottery.draw());
+        document.getElementById('prevBtn').addEventListener('click', () => lottery.undo());
+        document.getElementById('resetBtn').addEventListener('click', () => lottery.reset());
+        document.getElementById('autoDrawBtn').addEventListener('click', () => lottery.autoDraw());
+    </script>
 </body>
 </html>
