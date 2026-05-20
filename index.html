@@ -477,6 +477,12 @@
                 const leftSeats = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
                 const rightSeats = [11, 12, 13, 14, 15, 16, 17, 18, 19];
 
+                // 反向映射：座位號 -> 班級號
+                const seatToClass = {};
+                Object.entries(this.allocations).forEach(([classNum, seatNum]) => {
+                    seatToClass[seatNum] = classNum;
+                });
+
                 for (let row = 0; row < 5; row++) {
                     // 左側座位
                     for (let col = 0; col < 2; col++) {
@@ -484,12 +490,14 @@
                         if (seatNum) {
                             const seat = document.createElement('div');
                             seat.className = 'seat';
-                            seat.textContent = seatNum;
 
-                            const isOccupied = Object.values(this.allocations).includes(seatNum);
-                            if (isOccupied) {
+                            if (seatToClass[seatNum]) {
+                                // 顯示班級號
+                                seat.textContent = seatToClass[seatNum];
                                 seat.classList.add('occupied');
                             } else {
+                                // 顯示座位號
+                                seat.textContent = seatNum;
                                 seat.classList.add('available');
                             }
 
@@ -508,12 +516,14 @@
                         if (seatNum) {
                             const seat = document.createElement('div');
                             seat.className = 'seat';
-                            seat.textContent = seatNum;
 
-                            const isOccupied = Object.values(this.allocations).includes(seatNum);
-                            if (isOccupied) {
+                            if (seatToClass[seatNum]) {
+                                // 顯示班級號
+                                seat.textContent = seatToClass[seatNum];
                                 seat.classList.add('occupied');
                             } else {
+                                // 顯示座位號
+                                seat.textContent = seatNum;
                                 seat.classList.add('available');
                             }
 
