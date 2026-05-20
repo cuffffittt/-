@@ -162,9 +162,16 @@
 
         .seat-visualization {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(2, 1fr) auto repeat(2, 1fr);
             gap: 8px;
             margin-top: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .seat-spacer {
+            width: 20px;
         }
 
         .seat {
@@ -467,19 +474,52 @@
                 const container = document.getElementById('seatVisualization');
                 container.innerHTML = '';
 
-                for (let i = 1; i <= this.totalSeats; i++) {
-                    const seat = document.createElement('div');
-                    seat.className = 'seat';
-                    seat.textContent = i;
+                const leftSeats = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+                const rightSeats = [11, 12, 13, 14, 15, 16, 17, 18, 19];
 
-                    const isOccupied = Object.values(this.allocations).includes(i);
-                    if (isOccupied) {
-                        seat.classList.add('occupied');
-                    } else {
-                        seat.classList.add('available');
+                for (let row = 0; row < 5; row++) {
+                    // 左側座位
+                    for (let col = 0; col < 2; col++) {
+                        const seatNum = leftSeats[row * 2 + col];
+                        if (seatNum) {
+                            const seat = document.createElement('div');
+                            seat.className = 'seat';
+                            seat.textContent = seatNum;
+
+                            const isOccupied = Object.values(this.allocations).includes(seatNum);
+                            if (isOccupied) {
+                                seat.classList.add('occupied');
+                            } else {
+                                seat.classList.add('available');
+                            }
+
+                            container.appendChild(seat);
+                        }
                     }
 
-                    container.appendChild(seat);
+                    // 中間通道
+                    const spacer = document.createElement('div');
+                    spacer.className = 'seat-spacer';
+                    container.appendChild(spacer);
+
+                    // 右側座位
+                    for (let col = 0; col < 2; col++) {
+                        const seatNum = rightSeats[row * 2 + col];
+                        if (seatNum) {
+                            const seat = document.createElement('div');
+                            seat.className = 'seat';
+                            seat.textContent = seatNum;
+
+                            const isOccupied = Object.values(this.allocations).includes(seatNum);
+                            if (isOccupied) {
+                                seat.classList.add('occupied');
+                            } else {
+                                seat.classList.add('available');
+                            }
+
+                            container.appendChild(seat);
+                        }
+                    }
                 }
             }
 
